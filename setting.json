@@ -1,0 +1,93 @@
+[
+    {
+        "title": "Emby",
+        "items": [
+            {
+                "icon": [
+                    "location.fill",
+                    "#FF9900"
+                ],
+                "title": "Host",
+                "type": "input",
+                "key": "emby.host",
+                "value": "http://emby:8096"
+            },
+            {
+                "icon": [
+                    "location.fill",
+                    "#FF9900"
+                ],
+                "title": "User ID",
+                "type": "input",
+                "key": "emby.userId",
+                "value": ""
+            },
+            {
+                "icon": [
+                    "location.fill",
+                    "#FF9900"
+                ],
+                "title": "API Key",
+                "type": "input",
+                "key": "emby.apiKey",
+                "value": ""
+            }
+        ]
+    },
+    {
+        "title": "TMDB",
+        "items": [
+            {
+                "icon": [
+                    "location.fill",
+                    "#FF9900"
+                ],
+                "title": "API Key",
+                "type": "input",
+                "key": "tmdb.apiKey",
+                "value": ""
+            }
+        ]
+    },
+    {
+        "title": "ABOUT",
+        "items": [
+            {
+                "icon": [
+                    "/assets/icon/github.com.jpeg",
+                    "white"
+                ],
+                "title": "Github",
+                "type": "info",
+                "key": "about.github",
+                "value": [
+                    "ipuppet/EmbyNameSync",
+                    "https://github.com/ipuppet/EmbyNameSync"
+                ]
+            },
+            {
+                "icon": [
+                    "person.fill",
+                    "#FF9900"
+                ],
+                "title": "AUTHOR",
+                "type": "info",
+                "key": "about.author",
+                "value": [
+                    "ipuppet",
+                    "https://blog.ultagic.com"
+                ]
+            },
+            {
+                "icon": [
+                    "book.fill",
+                    "#A569BD"
+                ],
+                "title": "README",
+                "type": "script",
+                "key": "about.readme",
+                "value": "this.method.readme"
+            }
+        ]
+    }
+]
