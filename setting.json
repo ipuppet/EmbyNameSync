@@ -1,5 +1,30 @@
 [
     {
+        "title": "GENERAL",
+        "items": [
+            {
+                "icon": [
+                    "location.fill",
+                    "#FF9900"
+                ],
+                "title": "Exclude",
+                "type": "string",
+                "key": "general.exclude",
+                "value": ""
+            },
+            {
+                "icon": [
+                    "location.fill",
+                    "#FF9900"
+                ],
+                "title": "Check Series",
+                "type": "switch",
+                "key": "general.checkSeries",
+                "value": false
+            }
+        ]
+    },
+    {
         "title": "Emby",
         "items": [
             {

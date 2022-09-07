@@ -1,11 +1,22 @@
-const Request = require("./request")
+const { Request } = require("./easy-jsbox")
 
 class Emby extends Request {
+    isLogRequest = false
+
     constructor(kernel, host, userId, apiKey) {
         super(kernel)
         this.baseUrl = host.trim("/")
         this.userId = userId
         this.apiKey = apiKey
+    }
+
+    async isReady() {
+        try {
+            await this.request(`/emby/Users/${this.userId}/Items?api_key=${this.apiKey}`, Request.Method.get)
+            return true
+        } catch (error) {
+            return false
+        }
     }
 
     async getItems(parentId = "") {
@@ -23,8 +34,8 @@ class Emby extends Request {
         return await this.request(url, Request.Method.get)
     }
 
-    async setItemInfo(itemId, info) {
-        const url = `/emby/Items/${itemId}?api_key=${this.apiKey}`
+    async setItemInfo(info) {
+        const url = `/emby/Items/${info.Id}?api_key=${this.apiKey}`
         await this.request(url, Request.Method.post, info)
     }
 }

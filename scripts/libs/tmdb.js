@@ -1,4 +1,4 @@
-const Request = require("./request")
+const { Request } = require("./easy-jsbox")
 
 class Tmdb extends Request {
     languageList = ["zh-CN", "zh-SG", "zh-TW", "zh-HK"]
@@ -8,7 +8,11 @@ class Tmdb extends Request {
     constructor(kernel, apiKey) {
         super(kernel)
         this.apiKey = apiKey
-        this.useCache()
+        this.useCache().ignoreCacheExp()
+    }
+
+    isReady() {
+        return this.apiKey !== undefined
     }
 
     async getTvInfo(tvId) {
