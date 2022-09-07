@@ -40,7 +40,7 @@ class Tmdb extends Request {
     async getMovieInfo(movieId) {
         for (let language of this.languageList) {
             try {
-                const url = `/tv/${movieId}?api_key=${this.apiKey}&language=${language}&append_to_response=alternative_titles`
+                const url = `/movie/${movieId}?api_key=${this.apiKey}&language=${language}&append_to_response=alternative_titles`
                 return await this.request(url, Request.Method.get)
             } catch (error) {
                 this.kernel.error(error)

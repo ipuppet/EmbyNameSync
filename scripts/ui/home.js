@@ -52,15 +52,15 @@ class HomeUI {
                     this.checkMediaDelay += this.checkMediaDelaySpan
                 } else {
                     if (item.Type === "Series" || item.Type === "Movie") {
-                        // TODO
-                        //this.tasks.clearTasks()
+                        // TODO dev
+                        this.tasks.clearTasks()
                         this.tasks.addTask(async () => {
                             const itemInfo = await this.kernel.embyClient.getItemInfo(item.Id)
                             const tmdbMediaInfo = await this.getTmdbMediaInfo(itemInfo)
-                            await this.updateEmbyItem(itemInfo, tmdbMediaInfo)
+                            this.updateEmbyItem(itemInfo, tmdbMediaInfo)
                         }, this.updateEmbyItemDelay)
                         this.updateEmbyItemDelay += this.updateEmbyItemDelaySpan
-                        //return
+                        return
                     }
                 }
             }
@@ -69,7 +69,7 @@ class HomeUI {
         }
     }
 
-    async getTmdbMediaInfo(itemInfo, season, episode) {
+    async getTmdbMediaInfo(itemInfo) {
         try {
             if (!itemInfo.ProviderIds?.Tmdb && !itemInfo.ProviderIds?.tmdb) {
                 throw new Error(`cannot find [${itemInfo.Name}] Tmdb ID`)
@@ -81,10 +81,6 @@ class HomeUI {
                 return await this.kernel.tmdbClient.getTvInfo(tmdbId)
             } else if (itemInfo.Type === "Movie") {
                 return await this.kernel.tmdbClient.getMovieInfo(tmdbId)
-            } else if (itemInfo.Type === "Episode") {
-                const tvInfo = await this.kernel.tmdbClient.getTvSeasonInfo(tmdbId, season)
-                // TODO return specified episode
-                return tvInfo
             } else {
                 throw new Error("unsupported type: " + itemInfo.Type)
             }
@@ -95,9 +91,26 @@ class HomeUI {
         }
     }
 
-    async updateEmbyItem(itemInfo, tmdbMediaInfo) {
+    async getTmdbSeasonInfo(itemInfo, season) {
+        try {
+            if (!itemInfo.ProviderIds?.Tmdb && !itemInfo.ProviderIds?.tmdb) {
+                throw new Error(`cannot find [${itemInfo.Name}] Tmdb ID`)
+            }
+
+            const tmdbId = itemInfo.ProviderIds?.Tmdb ?? itemInfo.ProviderIds?.tmdb
+
+            return await this.kernel.tmdbClient.getTvSeasonInfo(tmdbId, season)
+        } catch (error) {
+            $ui.alert(error)
+            this.kernel.error(error)
+            throw error
+        }
+    }
+
+    async updateEmbyItem(itemInfo, tmdbMediaInfo, checkSeries = true) {
         if (this.hasChinese(itemInfo.Name) && this.hasChinese(itemInfo.Overview)) {
-            return
+            // TODO dev
+            //return
         }
 
         // name
@@ -113,7 +126,8 @@ class HomeUI {
             itemInfo.LockedFields.push("Overview")
         }
 
-        if (itemInfo.Type === "Series") {
+        // checkSeries 防止无限递归
+        if (checkSeries && itemInfo.Type === "Series") {
             this.checkSeries(itemInfo)
         }
     }
@@ -121,15 +135,33 @@ class HomeUI {
     async checkSeries(itemInfo) {
         const seasons = await this.kernel.embyClient.getItems(itemInfo.Id)
         for (const season of seasons.Items) {
-            const episodes = await this.kernel.embyClient.getItems(season.Id)
-            console.log(episodes.Items)
             let delay = 0
+
+            // 获取 season 信息
+            const tmdbSeasonInfo = await this.getTmdbSeasonInfo(itemInfo, season.IndexNumber)
+            // 获取 season 包含的 episode
+            const episodes = await this.kernel.embyClient.getItems(season.Id)
+            // 遍历寻找对应的 episode
             for (const episode of episodes.Items) {
+                let tmdbEpisodeInfo
+                for (tmdbEpisodeInfo of tmdbSeasonInfo.episodes) {
+                    if (tmdbEpisodeInfo.episode_number > episode.IndexNumber) {
+                        throw new Error(
+                            `cannot find episode from tmdb: ${itemInfo.Name} S${season.IndexNumber}E${episode.IndexNumber}`
+                        )
+                    }
+                    if (tmdbEpisodeInfo.episode_number === episode.IndexNumber) {
+                        break
+                    }
+                }
+
                 this.tasks.addTask(async () => {
-                    const tmdbMediaInfo = await this.getTmdbMediaInfo(itemInfo, season.IndexNumber, episode.IndexNumber)
-                    this.updateEmbyItem(episode, tmdbMediaInfo)
+                    this.updateEmbyItem(episode, tmdbEpisodeInfo, false)
                 }, delay)
                 delay += this.updateEmbyItemDelaySpan
+
+                // TODO dev
+                return
             }
         }
     }

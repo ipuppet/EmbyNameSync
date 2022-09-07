@@ -25,12 +25,12 @@ class Request {
         this.#useCache = true
     }
 
-    async request(url, method, body = {}) {
-        url = this.baseUrl + url
+    async request(path, method, body = {}) {
+        const url = this.baseUrl + path
         let cacheKey
         const useCache = this.#useCache && method === Request.Method.get
         if (useCache) {
-            cacheKey = $text.MD5(url)
+            cacheKey = $text.MD5(this.baseUrl) + $text.MD5(path)
             const cache = $cache.get(cacheKey)
             if (cache) {
                 this.kernel.print("get data from cache: " + url)
@@ -47,7 +47,7 @@ class Request {
                 body
             })
             if (resp?.response?.statusCode >= 400) {
-                throw new Error("http error: [" + resp.response.statusCode + "] " + resp.data.message)
+                throw new Error("http error: [" + resp.response.statusCode + "] " + resp.data)
             }
             if (useCache) {
                 $cache.set(cacheKey, resp.data)
